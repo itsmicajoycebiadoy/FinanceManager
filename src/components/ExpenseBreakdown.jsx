@@ -56,7 +56,9 @@ const ExpenseBreakdown = ({ categoryTotals, totalExpense, totalIncome, darkMode 
                 ) : (
                     sortedCategories.map(([category, amount]) => {
                         const percentage = getPercentage(amount, totalExpense);
-                        const isHigh = percentage > 50;
+                        
+                        // BAGONG LOGIC: Lalabas lang ang CRITICAL kung ang amount ay higit sa totalIncome
+                        const isHigh = totalIncome > 0 && amount > totalIncome;
 
                         return (
                             <div key={category} className="group animate-fade-in">
@@ -64,7 +66,7 @@ const ExpenseBreakdown = ({ categoryTotals, totalExpense, totalIncome, darkMode 
                                     <div className="flex items-center gap-2">
                                         <span className="text-sm font-bold capitalize tracking-tight">{category}</span>
                                         {isHigh && (
-                                            <span className="text-[8px] bg-red-500 text-white px-2 py-0.5 rounded-md font-black">CRITICAL</span>
+                                            <span className="text-[8px] bg-red-500 text-white px-2 py-0.5 rounded-md font-black animate-pulse">CRITICAL</span>
                                         )}
                                     </div>
                                     <span className="text-sm font-black tabular-nums">₱{formatNumber(amount)}</span>
@@ -72,8 +74,8 @@ const ExpenseBreakdown = ({ categoryTotals, totalExpense, totalIncome, darkMode 
 
                                 <div className={`relative w-full h-2.5 rounded-full overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
                                     <div 
-                                        className={`h-full rounded-full transition-all duration-1000 ease-out ${isHigh ? 'bg-orange-500' : 'bg-indigo-500'}`}
-                                        style={{ width: `${percentage}%` }}
+                                        className={`h-full rounded-full transition-all duration-1000 ease-out ${isHigh ? 'bg-red-600' : 'bg-indigo-500'}`}
+                                        style={{ width: `${Math.min(percentage, 100)}%` }}
                                     />
                                 </div>
 
