@@ -15,8 +15,6 @@ function App() {
 
   const [nameInput, setNameInput] = useState('');
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-
-  // Inisyalize bilang empty array muna; ilo-load natin ang data sa useEffect base sa userName
   const [transactions, setTransactions] = useState([]);
   const [deletedTransactions, setDeletedTransactions] = useState([]);
 
@@ -44,7 +42,6 @@ function App() {
   };
 
   // --- USER DATA LOADING LOGIC ---
-  // Dito natin sisiguraduhin na kapag nag-login o nag-iba ang user, kukunin ang tamang data
   useEffect(() => {
     if (userName) {
       const savedTransactions = localStorage.getItem(`transactions_${userName}`);

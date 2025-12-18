@@ -15,7 +15,6 @@ const SummaryCards = ({ totals, balance, darkMode }) => {
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
                         <p className={`text-xs sm:text-sm font-medium mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Income</p>
-                        {/* INAYOS: Responsive font sizes para hindi maputol sa medium screens */}
                         <p className="text-lg sm:text-xl md:text-lg lg:text-2xl xl:text-3xl font-bold text-green-500 break-words">
                             ₱ {formatNumber(totals.income)}
                         </p>
@@ -34,7 +33,6 @@ const SummaryCards = ({ totals, balance, darkMode }) => {
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
                         <p className={`text-xs sm:text-sm font-medium mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Expenses</p>
-                        {/* INAYOS: Responsive font sizes para hindi maputol sa medium screens */}
                         <p className="text-lg sm:text-xl md:text-lg lg:text-2xl xl:text-3xl font-bold text-red-500 break-words">
                             ₱ {formatNumber(totals.expense)}
                         </p>
@@ -53,7 +51,6 @@ const SummaryCards = ({ totals, balance, darkMode }) => {
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
                         <p className={`text-xs sm:text-sm font-medium mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Current Balance</p>
-                        {/* INAYOS: Responsive font sizes para hindi maputol sa medium screens */}
                         <p className={`text-lg sm:text-xl md:text-lg lg:text-2xl xl:text-3xl font-bold break-words ${balance >= 0 ? 'text-blue-500' : 'text-red-500'}`}>
                             {balance < 0 ? '-' : ''}₱ {formatNumber(balance)}
                         </p>

@@ -85,7 +85,7 @@ const Header = ({
               </button>
             </div>
 
-            {/* Mobile Actions (Visible on small screens) */}
+            {/* Mobile Actions*/}
             <div className="flex items-center gap-1 sm:hidden">
               <button 
                 onClick={toggleDarkMode}

@@ -85,26 +85,6 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
 
     return (
         <div className="mb-6 sm:mb-8 w-full max-w-full overflow-hidden">
-            {/* Custom CSS para sa Calendar Picker Icon at Sizing */}
-            <style>{`
-                /* Ginagawang puti ang calendar icon sa dark mode */
-                .dark-calendar::-webkit-calendar-picker-indicator {
-                    filter: invert(1);
-                    cursor: pointer;
-                }
-                
-                /* Pinapaliit ang touch target ng calendar para hindi mag-overflow sa sm/md */
-                input[type="date"] {
-                    position: relative;
-                }
-
-                /* Inaayos ang padding para sa native date picker sa mobile */
-                @media (max-width: 768px) {
-                    input[type="date"]::-webkit-datetime-edit {
-                        font-size: 0.875rem;
-                    }
-                }
-            `}</style>
 
             <div className={`rounded-xl shadow-lg p-4 sm:p-8 min-h-[480px] flex flex-col ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
                 <div className="mb-6">
@@ -156,7 +136,6 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
                                 value={form.date} 
                                 onChange={handleChange} 
                                 onBlur={handleBlur} 
-                                // Idinagdag ang class base sa darkMode para sa icon color
                                 className={`${getInputClasses('date')} ${darkMode ? 'dark-calendar' : ''}`} 
                             />
                             {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}

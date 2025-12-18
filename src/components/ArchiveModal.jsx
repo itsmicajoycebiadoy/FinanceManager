@@ -50,7 +50,7 @@ const ArchiveModal = ({
 
   return (
     <>
-      {/* 1. DELETE ALL CONFIRMATION OVERLAY */}
+      {/* DELETE ALL CONFIRMATION OVERLAY */}
       {showDeleteAllConfirm && (
         <div className="fixed inset-0 z-[10001] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className={`rounded-3xl shadow-2xl max-w-xs w-full p-6 ${darkMode ? 'bg-[#0f172a] border border-white/10' : 'bg-white'}`}>
@@ -76,7 +76,7 @@ const ArchiveModal = ({
         </div>
       )}
 
-      {/* 2. MAIN SIDEBAR MODAL */}
+      {/* MAIN SIDEBAR MODAL */}
       <div className="fixed inset-0 z-[9990] flex justify-end overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px] pointer-events-auto" onClick={onClose} />
         

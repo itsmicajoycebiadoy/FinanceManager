@@ -16,10 +16,8 @@ const TransactionList = ({ filteredTransactions, currentFilter, setCurrentFilter
 
     const confirmDelete = () => {
         if (deleteModal) {
-            // Tinatawag ang delete function mula sa App.js
             deleteTransaction(deleteModal.id);
             
-            // Tinatawag ang showNotification prop mula sa App.js
             if (showNotification) {
                 showNotification(`Your Transaction "${deleteModal.description}" is Successfully Deleted`, 'success');
             }
@@ -30,7 +28,7 @@ const TransactionList = ({ filteredTransactions, currentFilter, setCurrentFilter
 
     return (
         <>
-            {/* Modal Confirmation - FIXED FOR MOBILE (COMPACT VERSION) */}
+            {/* Modal Confirmation */}
             {deleteModal && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-6">
                     <div className={`w-full max-w-[300px] rounded-2xl p-5 shadow-2xl transform transition-all animate-in zoom-in-95 duration-200 ${darkMode ? 'bg-gray-900 border border-gray-800 text-white' : 'bg-white text-gray-900'}`}>
