@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 
-const TransactionList = ({ filteredTransactions, currentFilter, setCurrentFilter, deleteTransaction, darkMode }) => {
+const TransactionList = ({ filteredTransactions, currentFilter, setCurrentFilter, deleteTransaction, darkMode, showNotification }) => {
     const [deleteModal, setDeleteModal] = useState(null);
-    const [notifications, setNotifications] = useState([]);
 
     const formatNumber = (number) => {
         return new Intl.NumberFormat('en-PH', {
@@ -11,78 +10,65 @@ const TransactionList = ({ filteredTransactions, currentFilter, setCurrentFilter
         }).format(number);
     };
 
-    const showNotification = (message, type = 'info') => {
-        const id = Date.now();
-        setNotifications(prev => [...prev, { id, message, type }]);
-        setTimeout(() => removeNotification(id), 3000);
-    };
-
-    const removeNotification = (id) => {
-        setNotifications(prev => prev.filter(n => n.id !== id));
-    };
-
-    // FIX: Idinagdag itong function para gumana ang pag-click sa delete icon
     const handleDeleteClick = (transaction) => {
         setDeleteModal(transaction);
     };
 
     const confirmDelete = () => {
         if (deleteModal) {
+            // Tinatawag ang delete function mula sa App.js
             deleteTransaction(deleteModal.id);
-            showNotification(`Your Transaction"${deleteModal.description} is Successfully Deleted"`, 'success');
+            
+            // Tinatawag ang showNotification prop mula sa App.js
+            if (showNotification) {
+                showNotification(`Your Transaction "${deleteModal.description}" is Successfully Deleted`, 'success');
+            }
+            
             setDeleteModal(null);
         }
     };
 
-    const getNotificationConfig = (type) => {
-        const icons = {
-            success: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>,
-            error: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        };
-        return type === 'success' 
-            ? { bgColor: 'bg-green-600', borderColor: 'border-green-800', icon: icons.success }
-            : { bgColor: 'bg-red-600', borderColor: 'border-red-800', icon: icons.error };
-    };
-
     return (
         <>
-            {/* Toast Notifications */}
-            <div className="fixed top-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none">
-                {notifications.map((n) => {
-                    const config = getNotificationConfig(n.type);
-                    return (
-                        <div key={n.id} className={`pointer-events-auto w-72 ${config.bgColor} text-white p-3 rounded-lg shadow-2xl border-l-4 ${config.borderColor} animate-slide-in-right`}>
-                            <div className="flex items-start gap-3">
-                                {config.icon}
-                                <div className="flex-1 italic text-sm">{n.message}</div>
-                                <button onClick={() => removeNotification(n.id)} className="opacity-70">×</button>
+            {/* Modal Confirmation - FIXED FOR MOBILE (COMPACT VERSION) */}
+            {deleteModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-6">
+                    <div className={`w-full max-w-[300px] rounded-2xl p-5 shadow-2xl transform transition-all animate-in zoom-in-95 duration-200 ${darkMode ? 'bg-gray-900 border border-gray-800 text-white' : 'bg-white text-gray-900'}`}>
+                        <div className="flex justify-center mb-3">
+                            <div className="bg-red-100 dark:bg-red-900/20 p-2 rounded-full">
+                                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
                             </div>
                         </div>
-                    );
-                })}
-            </div>
-
-            {/* Modal Confirmation */}
-            {deleteModal && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className={`w-full max-w-sm rounded-2xl p-6 shadow-2xl ${darkMode ? 'bg-gray-900 border border-gray-800 text-white' : 'bg-white text-gray-900'}`}>
-                        <h3 className="text-xl font-bold mb-4 text-center">Confirm Delete</h3>
-                        <p className={`text-sm mb-6 text-center ${darkMode ? 'opacity-70' : 'text-gray-600'}`}>Are you sure you want to delete "{deleteModal.description}"?</p>
-                        <div className="flex gap-3">
-                            <button onClick={() => setDeleteModal(null)} className="flex-1 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-200 transition-colors">Cancel</button>
-                            <button onClick={confirmDelete} className="flex-1 py-2 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-500/30">Delete</button>
+                        <h3 className="text-lg font-bold mb-1 text-center">Delete Transaction?</h3>
+                        <p className={`text-xs mb-5 text-center px-2 leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            Are you sure you want to delete <span className="font-bold text-red-500">"{deleteModal.description}"</span>?
+                        </p>
+                        <div className="flex gap-2">
+                            <button 
+                                onClick={() => setDeleteModal(null)} 
+                                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={confirmDelete} 
+                                className="flex-1 py-2 rounded-xl bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-all shadow-md shadow-red-500/20 active:scale-95"
+                            >
+                                Delete
+                            </button>
                         </div>
                     </div>
                 </div>
             )}
 
             {/* Main Card */}
-            <div className={`rounded-2xl p-6 transition-all duration-300 ${darkMode ? 'bg-gray-800/50 border border-gray-700 shadow-none' : 'bg-white border border-gray-200 shadow-sm'}`}>
-                
+            <div className={`rounded-2xl p-6 transition-all duration-300 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}> 
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                     <h3 className={`text-xl sm:text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>Recent Transactions</h3>
                     
-                    {/* FILTER BUTTONS: Inayos para sa Light Mode */}
+                    {/* FILTER BUTTONS */}
                     <div className={`flex p-1 rounded-xl border ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-gray-100 border-gray-200'}`}>
                         {['all', 'income', 'expense'].map((filter) => (
                             <button
@@ -102,7 +88,7 @@ const TransactionList = ({ filteredTransactions, currentFilter, setCurrentFilter
 
                 <div className="space-y-3 overflow-y-auto max-h-[450px] pr-2 custom-scrollbar">
                     {filteredTransactions.length === 0 ? (
-                        <div className={`text-center py-10 italic text-sm ${darkMode ? 'opacity-40' : 'text-gray-400'}`}>Walang nahanap na transaction.</div>
+                        <div className={`text-center py-10 italic text-sm ${darkMode ? 'opacity-40' : 'text-gray-400'}`}>No transactions yet.</div>
                     ) : (
                         filteredTransactions.map(transaction => (
                             <div 

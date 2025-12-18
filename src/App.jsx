@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Instagram, Github, Facebook } from 'lucide-react';
+import { Instagram, Github, Facebook, X } from 'lucide-react';
 import Header from './components/Header';
 import SummaryCards from './components/SummaryCards';
 import TransactionForm from './components/TransactionForm';
@@ -27,6 +27,8 @@ function App() {
   const [currentFilter, setCurrentFilter] = useState('all');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [archiveModalOpen, setArchiveModalOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+
   const [form, setForm] = useState({
     type: 'expense',
     category: 'food',
@@ -38,6 +40,24 @@ function App() {
   const categories = {
     income: ['salary', 'freelance', 'investment', 'other'],
     expense: ['food', 'transportation', 'shopping', 'other']
+  };
+
+  // --- NOTIFICATION SYSTEM ---
+  const showNotification = (message, type = 'info') => {
+    const id = Date.now();
+    setNotifications(prev => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 3000);
+  };
+
+  const getNotificationStyles = (type) => {
+    switch (type) {
+      case 'success': return 'bg-green-600 border-green-800';
+      case 'error': return 'bg-red-600 border-red-800';
+      case 'warning': return 'bg-yellow-600 border-yellow-800';
+      default: return 'bg-blue-600 border-blue-800';
+    }
   };
 
   // --- PERSISTENCE LOGIC ---
@@ -61,8 +81,8 @@ function App() {
 
   // --- HANDLERS ---
   const addTransaction = () => {
-    if (!form.amount || parseFloat(form.amount) <= 0) {
-      alert('Please enter a valid amount');
+    if (!form.amount || !form.description) {
+      showNotification('Please fill in all fields', 'warning');
       return;
     }
     const transaction = {
@@ -71,7 +91,7 @@ function App() {
       category: form.category,
       amount: parseFloat(form.amount),
       date: form.date,
-      description: form.description || 'No description'
+      description: form.description
     };
     setTransactions([transaction, ...transactions]);
     setForm({
@@ -80,6 +100,7 @@ function App() {
       description: '',
       date: new Date().toISOString().split('T')[0]
     });
+    showNotification('Transaction added successfully!', 'success');
   };
 
   const deleteTransaction = (id) => {
@@ -90,6 +111,7 @@ function App() {
         deletedAt: new Date().toISOString()
       }, ...prev]);
       setTransactions(transactions.filter(t => t.id !== id));
+      showNotification('Moved to archive bin', 'info');
     }
   };
 
@@ -99,11 +121,19 @@ function App() {
       const { deletedAt, ...transaction } = transactionToRestore;
       setTransactions(prev => [transaction, ...prev]);
       setDeletedTransactions(prev => prev.filter(t => t.id !== id));
+      showNotification('Transaction restored!', 'success');
     }
   };
 
   const permanentDelete = (id) => {
     setDeletedTransactions(prev => prev.filter(t => t.id !== id));
+    showNotification('Permanently deleted', 'error');
+  };
+
+  const emptyAllTransactions = () => {
+    if (deletedTransactions.length === 0) return;
+    setDeletedTransactions([]);
+    showNotification('Archive cleared', 'info');
   };
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
@@ -111,13 +141,13 @@ function App() {
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
-    if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (element) {
+      const headerOffset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+    }
   };
-
-  // --- CALCULATIONS ---
-  const filteredTransactions = transactions.filter(t =>
-    currentFilter === 'all' || t.type === currentFilter
-  );
 
   const totals = transactions.reduce((acc, t) => {
     t.type === 'income' ? acc.income += t.amount : acc.expense += t.amount;
@@ -131,6 +161,19 @@ function App() {
 
   return (
     <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gradient-to-br from-blue-50 to-indigo-100'} transition-colors duration-300`}>
+      
+      {/* RESPONSIVE NOTIFICATIONS PORTAL */}
+      <div className="fixed top-4 right-4 left-4 sm:left-auto z-[9999] flex flex-col gap-3 sm:w-80 md:w-96">
+        {notifications.map(n => (
+          <div key={n.id} className={`${getNotificationStyles(n.type)} text-white px-4 py-3 rounded-xl shadow-2xl border-l-4 flex justify-between items-center animate-slide-in-right`}>
+            <span className="text-sm md:text-base font-medium">{n.message}</span>
+            <button onClick={() => setNotifications(prev => prev.filter(notif => notif.id !== n.id))} className="text-white/70 hover:text-white p-1">
+              <X size={18} />
+            </button>
+          </div>
+        ))}
+      </div>
+
       <Header 
         mobileMenuOpen={mobileMenuOpen} 
         setMobileMenuOpen={setMobileMenuOpen}
@@ -138,6 +181,7 @@ function App() {
         toggleArchiveModal={toggleArchiveModal}
         darkMode={darkMode}
         toggleDarkMode={toggleDarkMode}
+        scrollToSection={scrollToSection}
       />
 
       <ArchiveModal
@@ -147,36 +191,43 @@ function App() {
         restoreTransaction={restoreTransaction}
         permanentDelete={permanentDelete}
         darkMode={darkMode}
+        emptyAllTransactions={emptyAllTransactions}
+        showNotification={showNotification}
       />
 
+      {/* --- MAIN CONTENT SECTION --- */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-8 md:py-12 text-gray-800 dark:text-gray-100">
-        <section id="dashboard" className="mb-12">
+        <section id="dashboard" className="mb-12 scroll-mt-20">
           
+          {/* Page Header */}
           <div className="text-center mb-8 md:mb-12 px-2">
             <h2 className={`text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-extrabold ${darkMode ? 'text-white' : 'text-gray-800'} mb-3 tracking-tight`}>
               Take Control of Your Money
             </h2>
             <p className={`text-sm sm:text-base md:text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'} max-w-2xl mx-auto`}>
-              Track your income and manage your expenses with ease in one powerful dashboard.
+              Track your income and manage your expenses with ease.
             </p>
           </div>
 
+          {/* FIX: Use Capitalized SummaryCards */}
           <div className="mb-10">
             <SummaryCards totals={totals} balance={totals.income - totals.expense} darkMode={darkMode} />
           </div>
 
-          {/* MAIN GRID: Pinantay ang items-stretch para mag-match ang height ng breakdown */}
+          {/* --- RESPONSIVE GRID LAYOUT --- */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 xl:gap-10 items-stretch">
-            
-            {/* Left Side: Form and List */}
-            <div className="lg:col-span-7 xl:col-span-8 space-y-8 flex flex-col">
-              <TransactionForm 
-                form={form} setForm={setForm} categories={categories}
-                addTransaction={addTransaction} darkMode={darkMode}
-              />
-              <div id="transactions" className="flex-grow">
+            <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-8 h-full">
+              <div className="shrink-0">
+                <TransactionForm 
+                  form={form} setForm={setForm} categories={categories}
+                  addTransaction={addTransaction} darkMode={darkMode}
+                  showNotification={showNotification}
+                />
+              </div>
+
+              <div id="transactions" className="scroll-mt-24 flex-grow">
                 <TransactionList 
-                  filteredTransactions={filteredTransactions}
+                  filteredTransactions={transactions.filter(t => currentFilter === 'all' || t.type === currentFilter)}
                   currentFilter={currentFilter}
                   setCurrentFilter={setCurrentFilter}
                   deleteTransaction={deleteTransaction}
@@ -185,90 +236,54 @@ function App() {
               </div>
             </div>
 
-            {/* Right Side: Expense Breakdown */}
-            <div className="lg:col-span-5 xl:col-span-4">
-              <div className="sticky top-6 h-full">
+            <div className="lg:col-span-5 xl:col-span-4 h-full">
+              <div className="lg:sticky lg:top-24 h-full">
                 <ExpenseBreakdown 
-                    categoryTotals={categoryTotals} 
-                    totalExpense={totals.expense} 
-                    totalIncome={totals.income} 
-                    darkMode={darkMode} 
+                  categoryTotals={categoryTotals} 
+                  totalExpense={totals.expense} 
+                  totalIncome={totals.income} 
+                  darkMode={darkMode} 
                 />
               </div>
             </div>
-
           </div>
         </section>
       </main>
 
-      {/* --- RESPONSIVE FOOTER --- */}
       <footer className="bg-gradient-to-r from-black to-amber-900 text-white/80 mt-16 py-12 md:py-16 border-t border-white/10">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 xl:px-12">
-          
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 text-center lg:text-left mb-12 items-start">
-            
-            {/* Brand Section */}
             <div className="sm:col-span-2 flex flex-col items-center lg:items-start space-y-4">
               <h4 className="text-xl md:text-2xl font-black text-white tracking-tight">Finance Manager</h4>
               <p className="text-sm leading-relaxed max-w-sm opacity-70">
                 Your personal finance tracking solution. Simple, secure, and designed to help you manage your money smarter.
               </p>
             </div>
-
-            {/* Quick Links */}
             <div className="flex flex-col items-center lg:items-start space-y-4">
-              <h4 className="text-lg font-bold text-white tracking-tight">Quick Links</h4>
+              <h4 className="text-xl md:text-2xl font-black text-white tracking-tight">Quick Links</h4>
               <ul className="space-y-3">
-                <li>
-                  <button onClick={() => scrollToSection('dashboard')} className="text-sm hover:text-amber-400 transition-colors">Dashboard</button>
-                </li>
-                <li>
-                  <button onClick={() => scrollToSection('transactions')} className="text-sm hover:text-amber-400 transition-colors">Transactions</button>
-                </li>
+                <li><button onClick={() => scrollToSection('dashboard')} className="text-sm hover:text-amber-400 transition-colors">Dashboard</button></li>
+                <li><button onClick={() => scrollToSection('transactions')} className="text-sm hover:text-amber-400 transition-colors">Transactions</button></li>
               </ul>
             </div>
-
-            {/* Social Links with Enhanced Hover */}
             <div className="flex flex-col items-center lg:items-start space-y-4">
-              <h4 className="text-lg font-bold text-white tracking-tight">Connect With Me</h4>
+              <h4 className="text-xl md:text-2xl font-black text-white tracking-tight">Connect With Me</h4>
               <div className="flex gap-4 justify-center lg:justify-start">
-                
-                {/* GitHub */}
-                <a 
-                  href="https://github.com/itsmicajoycebiadoy" target="_blank" rel="noopener noreferrer" 
-                  className="group p-3 bg-white/5 rounded-full border border-white/10 hover:border-white/30 hover:bg-gray-800 transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg"
-                >
-                  <Github size={20} className="group-hover:scale-110 transition-transform duration-300" />
+                <a href="https://github.com/itsmicajoycebiadoy" target="_blank" rel="noopener noreferrer" className="group p-3 bg-white/5 rounded-full border border-white/10 hover:bg-gray-800 transition-all shadow-lg">
+                  <Github size={20} />
                 </a>
-
-                {/* Instagram */}
-                <a 
-                  href="https://www.instagram.com/miiekkaa?igsh=ZDBrdTVnNmt0eDFm" target="_blank" rel="noopener noreferrer" 
-                  className="group p-3 bg-white/5 rounded-full border border-white/10 hover:border-pink-500/50 hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-red-500 hover:to-purple-600 transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg"
-                >
-                  <Instagram size={20} className="group-hover:scale-110 transition-transform duration-300" />
+                <a href="https://www.instagram.com/miiekkaa" target="_blank" rel="noopener noreferrer" className="group p-3 bg-white/5 rounded-full border border-white/10 hover:bg-pink-600 transition-all shadow-lg">
+                  <Instagram size={20} />
                 </a>
-
-                {/* Facebook */}
-                <a 
-                  href="https://www.facebook.com/share/17iqtjmstS/" target="_blank" rel="noopener noreferrer" 
-                  className="group p-3 bg-white/5 rounded-full border border-white/10 hover:border-blue-500/50 hover:bg-blue-600 transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg"
-                >
-                  <Facebook size={20} className="group-hover:scale-110 transition-transform duration-300" />
+                <a href="https://www.facebook.com/share/17iqtjmstS/" target="_blank" rel="noopener noreferrer" className="group p-3 bg-white/5 rounded-full border border-white/10 hover:bg-blue-600 transition-all shadow-lg">
+                  <Facebook size={20} />
                 </a>
-
               </div>
             </div>
           </div>
-
-          {/* Copyright Section */}
           <div className="pt-8 border-t border-white/5 flex flex-col items-center justify-center text-center space-y-1">
-            <p className="text-[13px] md:text-sm font-medium flex items-center justify-center gap-1.5 text-white/90">
-              <span className="text-lg">©</span> 2025 Finance Manager
-            </p>
-            <p className="text-[13px] md:text-sm text-white/50 font-normal">
-              Created by: <span className="text-white/70">Mica Joyce Biadoy</span>
-            </p>
+            <p className="text-[13px] md:text-sm font-medium text-white/90">© 2025 Finance Manager</p>
+            <p className="text-[13px] md:text-sm text-white/50 font-normal">Created by: Mica Joyce Biadoy</p>
           </div>
         </div>
       </footer>
