@@ -64,7 +64,12 @@ const TransactionList = ({ filteredTransactions, currentFilter, setCurrentFilter
             {/* Main Card */}
             <div className={`rounded-2xl p-6 transition-all duration-300 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}> 
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                    <h3 className={`text-xl sm:text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>Recent Transactions</h3>
+                    
+                    {/* TITLE WITH INDIGO INDICATOR */}
+                    <h3 className={`text-xl sm:text-2xl font-bold flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                        <span className="w-1.5 h-6 bg-indigo-600 rounded-full"></span>
+                        Recent Transactions
+                    </h3>
                     
                     {/* FILTER BUTTONS */}
                     <div className={`flex p-1 rounded-xl border ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-gray-100 border-gray-200'}`}>

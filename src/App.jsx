@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Instagram, Github, Facebook, X, ArrowRight, AlertTriangle } from 'lucide-react';
+import { Instagram, Github, Facebook, X, ArrowRight, AlertTriangle, Download } from 'lucide-react';
 import Header from './components/Header';
 import SummaryCards from './components/SummaryCards';
 import TransactionForm from './components/TransactionForm';
@@ -71,6 +71,41 @@ function App() {
       case 'warning': return 'bg-yellow-600 border-yellow-800';
       default: return 'bg-blue-600 border-blue-800';
     }
+  };
+
+  // --- EXPORT LOGIC ---
+  const exportToCSV = () => {
+    if (transactions.length === 0) {
+      showNotification('No transactions to export', 'warning');
+      return;
+    }
+
+    const headers = ['Date', 'Type', 'Category', 'Description', 'Amount'];
+    const rows = transactions.map(t => [
+      t.date,
+      t.type.toUpperCase(),
+      t.category.toUpperCase(),
+      `"${t.description.replace(/"/g, '""')}"`,
+      t.amount
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(e => e.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Finance_Report_${userName}_${new Date().toLocaleDateString()}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showNotification('Report exported successfully!', 'success');
+    setMobileMenuOpen(false); // Close menu if on mobile
   };
 
   // --- PERSISTENCE LOGIC (User-Specific) ---
@@ -183,6 +218,7 @@ function App() {
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
       window.scrollTo({ top: offsetPosition, behavior: "smooth" });
     }
+    setMobileMenuOpen(false);
   };
 
   const totals = transactions.reduce((acc, t) => {
@@ -290,6 +326,7 @@ function App() {
         </div>
       )}
 
+      {/* HEADER WITH INTEGRATED EXPORT */}
       <Header 
         userName={userName}
         mobileMenuOpen={mobileMenuOpen} 
@@ -300,6 +337,7 @@ function App() {
         toggleDarkMode={toggleDarkMode}
         scrollToSection={scrollToSection}
         handleLogout={() => setIsLogoutModalOpen(true)}
+        exportToCSV={exportToCSV} // Pass function to Header
       />
 
       <ArchiveModal
