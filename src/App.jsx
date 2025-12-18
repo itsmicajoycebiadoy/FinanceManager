@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Instagram, Github, Facebook } from 'lucide-react';
 import Header from './components/Header';
 import SummaryCards from './components/SummaryCards';
 import TransactionForm from './components/TransactionForm';
@@ -7,7 +8,7 @@ import ExpenseBreakdown from './components/ExpenseBreakdown';
 import ArchiveModal from './components/ArchiveModal';
 
 function App() {
-  // --- STATE INITIALIZATION (Dito kinukuha ang data pagka-refresh) ---
+  // --- STATE INITIALIZATION ---
   const [transactions, setTransactions] = useState(() => {
     const saved = localStorage.getItem('transactions');
     return saved ? JSON.parse(saved) : [];
@@ -23,7 +24,6 @@ function App() {
     return savedTheme === 'dark';
   });
 
-  // Iba pang states
   const [currentFilter, setCurrentFilter] = useState('all');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [archiveModalOpen, setArchiveModalOpen] = useState(false);
@@ -40,7 +40,7 @@ function App() {
     expense: ['food', 'transportation', 'shopping', 'other']
   };
 
-  // --- PERSISTENCE LOGIC (Sinasave ang data tuwing may nagbabago) ---
+  // --- PERSISTENCE LOGIC ---
   useEffect(() => {
     localStorage.setItem('transactions', JSON.stringify(transactions));
   }, [transactions]);
@@ -149,22 +149,32 @@ function App() {
         darkMode={darkMode}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-8 md:py-12 text-gray-800 dark:text-gray-100">
         <section id="dashboard" className="mb-12">
-          <div className="text-center mb-8">
-            <h2 className={`text-3xl md:text-4xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'} mb-2`}>Take Control of Your Money</h2>
-            <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Track your income and manage your expenses with ease</p>
+          
+          <div className="text-center mb-8 md:mb-12 px-2">
+            <h2 className={`text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-extrabold ${darkMode ? 'text-white' : 'text-gray-800'} mb-3 tracking-tight`}>
+              Take Control of Your Money
+            </h2>
+            <p className={`text-sm sm:text-base md:text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'} max-w-2xl mx-auto`}>
+              Track your income and manage your expenses with ease in one powerful dashboard.
+            </p>
           </div>
 
-          <SummaryCards totals={totals} balance={totals.income - totals.expense} darkMode={darkMode} />
+          <div className="mb-10">
+            <SummaryCards totals={totals} balance={totals.income - totals.expense} darkMode={darkMode} />
+          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
+          {/* MAIN GRID: Pinantay ang items-stretch para mag-match ang height ng breakdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 xl:gap-10 items-stretch">
+            
+            {/* Left Side: Form and List */}
+            <div className="lg:col-span-7 xl:col-span-8 space-y-8 flex flex-col">
               <TransactionForm 
                 form={form} setForm={setForm} categories={categories}
                 addTransaction={addTransaction} darkMode={darkMode}
               />
-              <div id="transactions">
+              <div id="transactions" className="flex-grow">
                 <TransactionList 
                   filteredTransactions={filteredTransactions}
                   currentFilter={currentFilter}
@@ -174,26 +184,92 @@ function App() {
                 />
               </div>
             </div>
-            <ExpenseBreakdown categoryTotals={categoryTotals} totalExpense={totals.expense} darkMode={darkMode} />
+
+            {/* Right Side: Expense Breakdown */}
+            <div className="lg:col-span-5 xl:col-span-4">
+              <div className="sticky top-6 h-full">
+                <ExpenseBreakdown 
+                    categoryTotals={categoryTotals} 
+                    totalExpense={totals.expense} 
+                    totalIncome={totals.income} 
+                    darkMode={darkMode} 
+                />
+              </div>
+            </div>
+
           </div>
         </section>
       </main>
 
-      <footer className="bg-gradient-to-r from-black to-amber-600 text-white mt-16 py-12">
-        <div className="max-w-7xl mx-auto px-8 text-center md:text-left grid grid-cols-1 md:grid-cols-4 gap-8">
-           <div className="md:col-span-2">
-             <h4 className="text-xl font-bold mb-4">Finance Manager</h4>
-             <p className="text-sm opacity-90">Your personal finance tracking solution. Manage your money smarter.</p>
-           </div>
-           <div>
-             <h4 className="font-bold mb-4">Quick Links</h4>
-             <button onClick={() => scrollToSection('dashboard')} className="block text-sm hover:text-amber-300 mb-2">Dashboard</button>
-             <button onClick={() => scrollToSection('transactions')} className="block text-sm hover:text-amber-300">Transactions</button>
-           </div>
-           <div>
-             <h4 className="font-bold mb-4">Copyright</h4>
-             <p className="text-sm">© 2025 Mica Joyce Biadoy</p>
-           </div>
+      {/* --- RESPONSIVE FOOTER --- */}
+      <footer className="bg-gradient-to-r from-black to-amber-900 text-white/80 mt-16 py-12 md:py-16 border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 xl:px-12">
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 text-center lg:text-left mb-12 items-start">
+            
+            {/* Brand Section */}
+            <div className="sm:col-span-2 flex flex-col items-center lg:items-start space-y-4">
+              <h4 className="text-xl md:text-2xl font-black text-white tracking-tight">Finance Manager</h4>
+              <p className="text-sm leading-relaxed max-w-sm opacity-70">
+                Your personal finance tracking solution. Simple, secure, and designed to help you manage your money smarter.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div className="flex flex-col items-center lg:items-start space-y-4">
+              <h4 className="text-lg font-bold text-white tracking-tight">Quick Links</h4>
+              <ul className="space-y-3">
+                <li>
+                  <button onClick={() => scrollToSection('dashboard')} className="text-sm hover:text-amber-400 transition-colors">Dashboard</button>
+                </li>
+                <li>
+                  <button onClick={() => scrollToSection('transactions')} className="text-sm hover:text-amber-400 transition-colors">Transactions</button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Social Links with Enhanced Hover */}
+            <div className="flex flex-col items-center lg:items-start space-y-4">
+              <h4 className="text-lg font-bold text-white tracking-tight">Connect With Me</h4>
+              <div className="flex gap-4 justify-center lg:justify-start">
+                
+                {/* GitHub */}
+                <a 
+                  href="https://github.com/itsmicajoycebiadoy" target="_blank" rel="noopener noreferrer" 
+                  className="group p-3 bg-white/5 rounded-full border border-white/10 hover:border-white/30 hover:bg-gray-800 transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg"
+                >
+                  <Github size={20} className="group-hover:scale-110 transition-transform duration-300" />
+                </a>
+
+                {/* Instagram */}
+                <a 
+                  href="https://www.instagram.com/miiekkaa?igsh=ZDBrdTVnNmt0eDFm" target="_blank" rel="noopener noreferrer" 
+                  className="group p-3 bg-white/5 rounded-full border border-white/10 hover:border-pink-500/50 hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-red-500 hover:to-purple-600 transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg"
+                >
+                  <Instagram size={20} className="group-hover:scale-110 transition-transform duration-300" />
+                </a>
+
+                {/* Facebook */}
+                <a 
+                  href="https://www.facebook.com/share/17iqtjmstS/" target="_blank" rel="noopener noreferrer" 
+                  className="group p-3 bg-white/5 rounded-full border border-white/10 hover:border-blue-500/50 hover:bg-blue-600 transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg"
+                >
+                  <Facebook size={20} className="group-hover:scale-110 transition-transform duration-300" />
+                </a>
+
+              </div>
+            </div>
+          </div>
+
+          {/* Copyright Section */}
+          <div className="pt-8 border-t border-white/5 flex flex-col items-center justify-center text-center space-y-1">
+            <p className="text-[13px] md:text-sm font-medium flex items-center justify-center gap-1.5 text-white/90">
+              <span className="text-lg">©</span> 2025 Finance Manager
+            </p>
+            <p className="text-[13px] md:text-sm text-white/50 font-normal">
+              Created by: <span className="text-white/70">Mica Joyce Biadoy</span>
+            </p>
+          </div>
         </div>
       </footer>
     </div>
