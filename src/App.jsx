@@ -73,39 +73,60 @@ function App() {
     }
   };
 
-  // --- EXPORT LOGIC ---
+  // --- FIXED EXPORT LOGIC FOR ALL DEVICES ---
   const exportToCSV = () => {
     if (transactions.length === 0) {
       showNotification('No transactions to export', 'warning');
       return;
     }
 
-    const headers = ['Date', 'Type', 'Category', 'Description', 'Amount'];
-    const rows = transactions.map(t => [
-      t.date,
-      t.type.toUpperCase(),
-      t.category.toUpperCase(),
-      `"${t.description.replace(/"/g, '""')}"`,
-      t.amount
-    ]);
+    try {
+      const headers = ['Date', 'Type', 'Category', 'Description', 'Amount'];
+      const rows = transactions.map(t => [
+        t.date,
+        t.type.toUpperCase(),
+        t.category.toUpperCase(),
+        `"${t.description.replace(/"/g, '""')}"`,
+        t.amount
+      ]);
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(e => e.join(','))
-    ].join('\n');
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(e => e.join(','))
+      ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `Finance_Report_${userName}_${new Date().toLocaleDateString()}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    showNotification('Report exported successfully!', 'success');
-    setMobileMenuOpen(false); // Close menu if on mobile
+      // Paggamit ng Universal approach para sa mobile at desktop
+      const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const fileName = `Finance_Report_${userName}_${new Date().toLocaleDateString().replace(/\//g, '-')}.csv`;
+
+      if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+        // Para sa Internet Explorer/Legacy browsers
+        window.navigator.msSaveOrOpenBlob(blob, fileName);
+      } else {
+        // Standard modern approach (Android/iOS/Desktop)
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fileName);
+        
+        // Importante ito para sa mobile browsers
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        
+        // Cleanup
+        setTimeout(() => {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }, 100);
+      }
+
+      showNotification('Report exported successfully!', 'success');
+      setMobileMenuOpen(false); // Siguradong magsasara ang menu pagkatapos
+    } catch (error) {
+      showNotification('Export failed. Please try again.', 'error');
+      console.error('Export error:', error);
+    }
   };
 
   // --- PERSISTENCE LOGIC (User-Specific) ---
@@ -231,11 +252,10 @@ function App() {
     return acc;
   }, {});
 
-  // --- WELCOME SCREEN RENDER (FIXED) ---
+  // --- WELCOME SCREEN RENDER ---
   if (!userName) {
     return (
       <div className="fixed inset-0 w-full h-full bg-gradient-to-br from-black via-amber-900 to-black flex items-center justify-center p-4 overflow-hidden touch-none">
-        {/* NOTIFICATIONS */}
         <div className="fixed top-4 right-4 left-4 sm:left-auto z-[9999] flex flex-col gap-3 sm:w-80 md:w-96">
           {notifications.map(n => (
             <div key={n.id} className={`${getNotificationStyles(n.type)} text-white px-4 py-3 rounded-xl shadow-2xl border-l-4 flex justify-between items-center`}>
@@ -267,7 +287,6 @@ function App() {
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
                 placeholder="Enter your name to start..."
-                /* Set text size to 16px (text-base) to prevent iOS auto-zoom */
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-base placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
               />
             </div>
@@ -328,7 +347,6 @@ function App() {
         </div>
       )}
 
-      {/* HEADER WITH INTEGRATED EXPORT */}
       <Header 
         userName={userName}
         mobileMenuOpen={mobileMenuOpen} 
