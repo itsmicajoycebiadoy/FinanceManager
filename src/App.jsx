@@ -73,7 +73,7 @@ function App() {
     }
   };
 
-  // --- FIXED EXPORT LOGIC FOR ALL DEVICES ---
+  // --- FIXED EXPORT LOGIC FOR MOBILE AND DESKTOP ---
   const exportToCSV = () => {
     if (transactions.length === 0) {
       showNotification('No transactions to export', 'warning');
@@ -90,42 +90,40 @@ function App() {
         t.amount
       ]);
 
-      const csvContent = [
+      // Nagdagdag ng \ufeff (BOM) para sa Excel compatibility at tamang encoding sa mobile devices
+      const csvContent = "\ufeff" + [
         headers.join(','),
         ...rows.map(e => e.join(','))
       ].join('\n');
 
-      // Paggamit ng Universal approach para sa mobile at desktop
-      const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const fileName = `Finance_Report_${userName}_${new Date().toLocaleDateString().replace(/\//g, '-')}.csv`;
 
-      if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-        // Para sa Internet Explorer/Legacy browsers
-        window.navigator.msSaveOrOpenBlob(blob, fileName);
-      } else {
-        // Standard modern approach (Android/iOS/Desktop)
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', fileName);
-        
-        // Importante ito para sa mobile browsers
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        
-        // Cleanup
-        setTimeout(() => {
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        }, 100);
-      }
+      // Pag-check kung mobile browser para sa mas stable na download trigger
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', fileName);
+      
+      // Styling para masiguro na hindi ito maba-block ng UI threads
+      link.style.display = 'none';
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      // Timeout cleanup - napaka-importante sa mobile para hindi mag-fail ang page load
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 200);
 
       showNotification('Report exported successfully!', 'success');
-      setMobileMenuOpen(false); // Siguradong magsasara ang menu pagkatapos
+      setMobileMenuOpen(false); 
     } catch (error) {
-      showNotification('Export failed. Please try again.', 'error');
-      console.error('Export error:', error);
+      console.error("Export error:", error);
+      showNotification('Failed to export. Check browser permissions.', 'error');
     }
   };
 

@@ -182,7 +182,7 @@ const Header = ({
           
           <div className="p-6 bg-black/40 text-center">
             <p className="text-[10px] text-gray-400 uppercase tracking-widest">© 2025 Finance Manager</p>
-            <p className="text-[10px] text-amber-500/60 mt-1">Mica Joyce Biadoy</p>
+            <p className="text-[10px] text-amber-500/60 mt-1">Created by: Mica Joyce Biadoy</p>
           </div>
         </div>
       </div>

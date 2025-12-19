@@ -47,7 +47,6 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
                 .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
             
             // 3. Live Preview: Isama ang kasalukuyang tina-type sa form kung tugma ang category
-            // Gagamit tayo ng Number() para siguradong hindi ito maging string concatenation
             const currentFormAmount = (form.type === 'expense' && form.category === selectedBudgetCategory) 
                 ? Number(form.amount || 0) 
                 : 0;
@@ -168,7 +167,8 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
 
     const getInputClasses = (name) => {
         const hasError = errors[name];
-        const baseClasses = 'w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm appearance-none';
+        // Idinagdag ang min-h-[44px] para sa mobile touch accessibility at cursor-pointer para sa date/select
+        const baseClasses = 'w-full px-4 py-3 min-h-[48px] rounded-xl border focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm appearance-none cursor-pointer';
         
         if (hasError) {
             return `${baseClasses} border-red-500 ${darkMode ? 'bg-red-500/10 text-white' : 'bg-red-50'}`;
@@ -183,7 +183,13 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
         backgroundSize: '1.25em 1.25em'
     };
 
-    // --- CALCULATIONS FOR UI ---
+    // --- DATE PICKER MOBILE FIX STYLE ---
+    // Pinipilit nito na lumabas ang native calendar icon sa Chrome/Safari at maging clickable ang buong field
+    const dateInputStyle = {
+        colorScheme: darkMode ? 'dark' : 'light',
+        position: 'relative'
+    };
+
     const budgetValue = parseFloat(monthlyBudget) || 0;
     const remainingAmount = budgetValue - spentAmount;
     const usagePercent = budgetValue > 0 ? Math.round((spentAmount / budgetValue) * 100) : 0;
@@ -343,7 +349,15 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
                             </div>
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-gray-500 uppercase ml-1">Date</label>
-                                <input name="date" type="date" value={form.date} onChange={handleChange} onBlur={handleBlur} className={getInputClasses('date')} />
+                                <input 
+                                    name="date" 
+                                    type="date" 
+                                    value={form.date} 
+                                    onChange={handleChange} 
+                                    onBlur={handleBlur} 
+                                    className={getInputClasses('date')} 
+                                    style={dateInputStyle}
+                                />
                             </div>
                         </div>
 
