@@ -21,7 +21,6 @@ const TransactionList = ({ filteredTransactions, currentFilter, setCurrentFilter
             if (showNotification) {
                 showNotification(`Your Transaction "${deleteModal.description}" is Successfully Deleted`, 'success');
             }
-            
             setDeleteModal(null);
         }
     };

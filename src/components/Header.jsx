@@ -36,7 +36,7 @@ const Header = ({
               </div>
             </div>
 
-            {/* Desktop Navigation - Organized Spacing */}
+            {/* Desktop Navigation */}
             <div className="hidden sm:flex items-center justify-end flex-1 gap-1 md:gap-3 lg:gap-6 ml-4">
               <div className="flex items-center gap-1 md:gap-4 border-r border-white/10 pr-2 md:pr-4">
                 <a href="#dashboard" className="text-xs lg:text-sm text-white hover:text-amber-300 transition-colors duration-200 font-medium px-2 py-1">Dashboard</a>
@@ -44,7 +44,6 @@ const Header = ({
               </div>
               
               <div className="flex items-center gap-1 md:gap-2 lg:gap-4">
-                {/* Export Button */}
                 <button 
                   onClick={exportToCSV}
                   className="p-2 text-white hover:text-amber-300 transition-colors duration-200 flex items-center gap-2"
@@ -54,22 +53,20 @@ const Header = ({
                   <span className="hidden lg:inline text-xs lg:text-sm font-medium">Export</span>
                 </button>
 
-                {/* Dark Mode Toggle */}
                 <button 
                   onClick={toggleDarkMode}
                   className="p-2 text-white hover:text-amber-300 transition-colors duration-200"
                   aria-label="Toggle Theme"
                 >
-                  {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+                  {darkMode ? <Moon size={18} /> : <Sun size={18} />}
                 </button>
                 
-                {/* Archive Button */}
                 <button 
                   onClick={toggleArchiveModal}
                   className="relative p-2 text-white hover:text-amber-300 transition-colors duration-200 flex items-center gap-2"
                   title="Archive"
                 >
-                  <Trash2 size={18} />
+                  < Trash2 size={18} />
                   <span className="hidden lg:inline text-xs lg:text-sm font-medium">Archive</span>
                   {deletedTransactions.length > 0 && (
                     <span className="absolute top-1 right-1 lg:right-[-4px] w-4 h-4 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
@@ -78,7 +75,6 @@ const Header = ({
                   )}
                 </button>
 
-                {/* Logout */}
                 <button 
                   onClick={handleLogout}
                   className="ml-2 px-3 py-1.5 bg-white/10 hover:bg-red-500/40 text-white border border-white/20 rounded-lg text-[10px] lg:text-xs font-bold transition-all duration-200 flex items-center gap-2"
@@ -91,7 +87,10 @@ const Header = ({
 
             {/* Mobile Actions Toolbar */}
             <div className="flex items-center gap-1 sm:hidden">
-              <button onClick={toggleDarkMode} className="p-2 text-white"><Moon size={20} /></button>
+              <button onClick={toggleDarkMode} className="p-2 text-white">
+
+                {darkMode ? <Moon size={20} /> : <Sun size={20} />}
+              </button>
               <button onClick={toggleArchiveModal} className="relative p-2 text-white">
                 <Trash2 size={20} />
                 {deletedTransactions.length > 0 && (
@@ -152,13 +151,14 @@ const Header = ({
               <span className="font-medium">Transactions</span>
             </a>
 
-            <button onClick={() => { exportToCSV(); setMobileMenuOpen(false); }} className="flex items-center gap-4 text-white hover:bg-white/5 py-4 px-8 transition-all w-full text-left">
+            <button onClick={exportToCSV} className="flex items-center gap-4 text-white hover:bg-white/5 py-4 px-8 transition-all w-full text-left">
               <Download size={20} className="text-amber-400" />
               <span className="font-medium">Export Records</span>
             </button>
             
             <button onClick={() => { toggleDarkMode(); setMobileMenuOpen(false); }} className="flex items-center gap-4 text-white hover:bg-white/5 py-4 px-8 transition-all w-full text-left">
-              {darkMode ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-amber-400" />}
+              {/*Moon icon if Dark Mode, Sun icon if Light Mode */}
+              {darkMode ? <Moon size={20} className="text-amber-400" /> : <Sun size={20} className="text-amber-400" />}
               <span className="font-medium">{darkMode ? 'Switch to Light' : 'Switch to Dark'}</span>
             </button>
             

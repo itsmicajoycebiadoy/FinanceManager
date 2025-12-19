@@ -57,7 +57,6 @@ const ExpenseBreakdown = ({ categoryTotals, totalExpense, totalIncome, darkMode 
                     sortedCategories.map(([category, amount]) => {
                         const percentage = getPercentage(amount, totalExpense);
                         
-                        // BAGONG LOGIC: Lalabas lang ang CRITICAL kung ang amount ay higit sa totalIncome
                         const isHigh = totalIncome > 0 && amount > totalIncome;
 
                         return (
