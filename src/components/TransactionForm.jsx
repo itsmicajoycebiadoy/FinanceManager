@@ -164,12 +164,16 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
 
     const getInputClasses = (name) => {
         const hasError = errors[name];
-        const baseClasses = 'w-full px-4 py-3 min-h-[48px] rounded-xl border focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm appearance-none';
+        // Inalis ang appearance-none dito para maging default lang muna
+        const baseClasses = 'w-full px-4 py-3 min-h-[48px] rounded-xl border focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm';
         
+        // Dagdag na logic para sa appearance-none sa non-date fields
+        const appearanceClass = name === 'date' ? '' : 'appearance-none';
+
         if (hasError) {
-            return `${baseClasses} border-red-500 ${darkMode ? 'bg-red-500/10 text-white' : 'bg-red-50'}`;
+            return `${baseClasses} ${appearanceClass} border-red-500 ${darkMode ? 'bg-red-500/10 text-white' : 'bg-red-50'}`;
         }
-        return `${baseClasses} ${darkMode ? 'bg-gray-900/50 border-gray-700 text-white' : 'bg-gray-50 border-gray-200 text-gray-800'}`;
+        return `${baseClasses} ${appearanceClass} ${darkMode ? 'bg-gray-900/50 border-gray-700 text-white' : 'bg-gray-50 border-gray-200 text-gray-800'}`;
     };
 
     const selectArrowStyle = {
@@ -179,11 +183,8 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
         backgroundSize: '1.25em 1.25em'
     };
 
-    // --- MOBILE CALENDAR FIX ---
-    // Inayos ang 'appearance-none' sa input at dinamihan ang padding para hindi matakpan ang icon
     const dateInputStyle = {
         colorScheme: darkMode ? 'dark' : 'light',
-        paddingRight: '10px' // Tinitiyak na may space sa kanan para sa native calendar icon
     };
 
     const budgetValue = parseFloat(monthlyBudget) || 0;
@@ -346,14 +347,13 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Date</label>
-                            {/* Mobile Fix: Tinanggal ang cursor-pointer at inayos ang focus behavior */}
                             <input 
                                 name="date" 
                                 type="date" 
                                 value={form.date} 
                                 onChange={handleChange} 
                                 onBlur={handleBlur} 
-                                className={`${getInputClasses('date')} block w-full`}
+                                className={getInputClasses('date')}
                                 style={dateInputStyle}
                             />
                         </div>
