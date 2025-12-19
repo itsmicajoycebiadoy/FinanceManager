@@ -25,17 +25,15 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
         }
     }, [selectedBudgetCategory]);
 
-    // LOAD BUDGET AT KALKULAHIN ANG SPENT (CONNECTED SA FORM AMOUNT)
+    // LOAD BUDGET AT KALKULAHIN ANG SPENT
     useEffect(() => {
         const monthKey = `${currentBudgetDate.getFullYear()}-${String(currentBudgetDate.getMonth() + 1).padStart(2, '0')}`;
         
-        // 1. Load Budget from LocalStorage
         const allBudgets = JSON.parse(localStorage.getItem(`monthly_budgets_${monthKey}`)) || {};
         
         if (selectedBudgetCategory) {
             setMonthlyBudget(allBudgets[selectedBudgetCategory] || '');
 
-            // 2. Calculate Spent Amount from historical transactions
             const pastSpent = (transactions || [])
                 .filter(t => {
                     const tDate = new Date(t.date);
@@ -46,7 +44,6 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
                 })
                 .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
             
-            // 3. Live Preview: Isama ang kasalukuyang tina-type sa form kung tugma ang category
             const currentFormAmount = (form.type === 'expense' && form.category === selectedBudgetCategory) 
                 ? Number(form.amount || 0) 
                 : 0;
@@ -167,8 +164,7 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
 
     const getInputClasses = (name) => {
         const hasError = errors[name];
-        // Idinagdag ang min-h-[44px] para sa mobile touch accessibility at cursor-pointer para sa date/select
-        const baseClasses = 'w-full px-4 py-3 min-h-[48px] rounded-xl border focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm appearance-none cursor-pointer';
+        const baseClasses = 'w-full px-4 py-3 min-h-[48px] rounded-xl border focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm appearance-none';
         
         if (hasError) {
             return `${baseClasses} border-red-500 ${darkMode ? 'bg-red-500/10 text-white' : 'bg-red-50'}`;
@@ -183,11 +179,11 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
         backgroundSize: '1.25em 1.25em'
     };
 
-    // --- DATE PICKER MOBILE FIX STYLE ---
-    // Pinipilit nito na lumabas ang native calendar icon sa Chrome/Safari at maging clickable ang buong field
+    // --- MOBILE CALENDAR FIX ---
+    // Inayos ang 'appearance-none' sa input at dinamihan ang padding para hindi matakpan ang icon
     const dateInputStyle = {
         colorScheme: darkMode ? 'dark' : 'light',
-        position: 'relative'
+        paddingRight: '10px' // Tinitiyak na may space sa kanan para sa native calendar icon
     };
 
     const budgetValue = parseFloat(monthlyBudget) || 0;
@@ -195,16 +191,16 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
     const usagePercent = budgetValue > 0 ? Math.round((spentAmount / budgetValue) * 100) : 0;
 
     return (
-        <div className="w-full h-full flex flex-col space-y-6">
+        <div className="w-full h-full flex flex-col space-y-4 md:space-y-6">
             {/* 1. SET BUDGET SECTION */}
-            <div className={`p-6 rounded-2xl shadow-sm border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
+            <div className={`p-4 md:p-6 rounded-2xl shadow-sm border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
                 <div className="flex items-center justify-between mb-6">
                     <button onClick={() => changeMonth(-1)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors">
                         <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
                     </button>
                     <div className="text-center">
-                        <h2 className={`text-xs font-semibold uppercase tracking-widest ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Category Budget Tracker</h2>
-                        <p className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                        <h2 className={`text-[10px] md:text-xs font-semibold uppercase tracking-widest ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Category Budget Tracker</h2>
+                        <p className={`text-lg md:text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                             {currentBudgetDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
                         </p>
                     </div>
@@ -226,7 +222,7 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
                         ))}
                     </select>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                         <div className="relative flex-1">
                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">₱</span>
                             <input 
@@ -234,59 +230,61 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
                                 value={monthlyBudget} 
                                 onChange={(e) => setMonthlyBudget(e.target.value)}
                                 placeholder="Set amount" 
-                                className={`w-full pl-8 pr-4 py-3 rounded-xl border focus:ring-2 focus:ring-indigo-500 outline-none transition-all ${darkMode ? 'bg-gray-900 border-gray-700 text-white' : 'bg-gray-50 border-gray-200 text-gray-800'}`}
+                                className={`w-full pl-8 pr-4 py-3 rounded-xl border focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm ${darkMode ? 'bg-gray-900 border-gray-700 text-white' : 'bg-gray-50 border-gray-200 text-gray-800'}`}
                             />
                         </div>
-                        <button 
-                            onClick={handleSaveBudget}
-                            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all active:scale-95 shadow-lg shadow-indigo-500/20"
-                        >
-                            Save
-                        </button>
-                        <button 
-                            onClick={handleRemoveBudget}
-                            className={`px-4 py-3 rounded-xl border transition-all active:scale-95 ${darkMode ? 'border-red-500/50 text-red-400 hover:bg-red-500/10' : 'border-red-200 text-red-500 hover:bg-red-50'}`}
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        </button>
+                        <div className="flex gap-2 w-full sm:w-auto">
+                            <button 
+                                onClick={handleSaveBudget}
+                                className="flex-1 sm:flex-none px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all active:scale-95 shadow-lg shadow-indigo-500/20 text-sm"
+                            >
+                                Save
+                            </button>
+                            <button 
+                                onClick={handleRemoveBudget}
+                                className={`px-4 py-3 rounded-xl border transition-all active:scale-95 ${darkMode ? 'border-red-500/50 text-red-400 hover:bg-red-500/10' : 'border-red-200 text-red-500 hover:bg-red-50'}`}
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                        </div>
                     </div>
 
                     {selectedBudgetCategory && (
                         <div className={`mt-4 p-4 rounded-xl border ${darkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-100'}`}>
                             <div className="flex justify-between items-center mb-4">
-                                <span className="text-xs font-bold text-gray-500 uppercase">{selectedBudgetCategory} Status</span>
-                                <span className={`text-[10px] font-black px-2 py-1 rounded-md uppercase ${remainingAmount < 0 ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>
+                                <span className="text-[10px] font-bold text-gray-500 uppercase">{selectedBudgetCategory} Status</span>
+                                <span className={`text-[9px] font-black px-2 py-1 rounded-md uppercase ${remainingAmount < 0 ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>
                                     {remainingAmount < 0 ? 'Over Budget' : 'Within Budget'}
                                 </span>
                             </div>
                             
-                            <div className="grid grid-cols-3 gap-2 mb-3">
+                            <div className="grid grid-cols-3 gap-1 md:gap-2 mb-3 text-center sm:text-left">
                                 <div className="flex flex-col">
-                                    <span className="text-[9px] uppercase font-bold text-gray-400">Spent</span>
-                                    <span className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                                        ₱{spentAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                    <span className="text-[8px] md:text-[9px] uppercase font-bold text-gray-400">Spent</span>
+                                    <span className={`text-xs md:text-sm font-bold truncate ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                                        ₱{spentAmount.toLocaleString()}
                                     </span>
                                 </div>
                                 <div className="flex flex-col border-l pl-2 border-gray-200 dark:border-gray-700">
-                                    <span className="text-[9px] uppercase font-bold text-gray-400">Budget</span>
-                                    <span className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                                        ₱{budgetValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                    <span className="text-[8px] md:text-[9px] uppercase font-bold text-gray-400">Budget</span>
+                                    <span className={`text-xs md:text-sm font-bold truncate ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                                        ₱{budgetValue.toLocaleString()}
                                     </span>
                                 </div>
                                 <div className="flex flex-col border-l pl-2 border-gray-200 dark:border-gray-700">
-                                    <span className="text-[9px] uppercase font-bold text-gray-400">Remaining</span>
-                                    <span className={`text-sm font-bold ${remainingAmount < 0 ? 'text-red-500' : (darkMode ? 'text-green-400' : 'text-green-600')}`}>
-                                        ₱{remainingAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                    <span className="text-[8px] md:text-[9px] uppercase font-bold text-gray-400">Left</span>
+                                    <span className={`text-xs md:text-sm font-bold truncate ${remainingAmount < 0 ? 'text-red-500' : (darkMode ? 'text-green-400' : 'text-green-600')}`}>
+                                        ₱{remainingAmount.toLocaleString()}
                                     </span>
                                 </div>
                             </div>
 
                             <div className="space-y-1">
-                                <div className="flex justify-between text-[10px] font-bold text-gray-500">
-                                    <span>Usage Percentage</span>
+                                <div className="flex justify-between text-[9px] font-bold text-gray-500">
+                                    <span>Usage</span>
                                     <span>{usagePercent}%</span>
                                 </div>
-                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
                                     <div 
                                         className={`h-full transition-all duration-500 ${remainingAmount < 0 ? 'bg-red-500' : 'bg-indigo-500'}`}
                                         style={{ width: `${Math.min(usagePercent, 100)}%` }}
@@ -299,78 +297,77 @@ const TransactionForm = ({ form, setForm, categories, addTransaction, darkMode, 
             </div>
 
             {/* 2. TRANSACTION FORM SECTION */}
-            <div className={`p-6 rounded-2xl shadow-sm border flex-1 flex flex-col ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
-                <h3 className={`text-xl sm:text-2xl font-bold mb-6 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+            <div className={`p-4 md:p-6 rounded-2xl shadow-sm border flex-1 flex flex-col ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
+                <h3 className={`text-lg md:text-2xl font-bold mb-6 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                     <span className="w-1.5 h-6 bg-indigo-600 rounded-full"></span>
                     Transaction Details
                 </h3>
 
-                <div className="space-y-5 flex-1 flex flex-col justify-between">
-                    <div className="space-y-5">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Type</label>
-                                <select 
-                                    name="type" 
-                                    value={form.type} 
-                                    onChange={handleChange} 
-                                    onBlur={handleBlur} 
-                                    className={getInputClasses('type')}
-                                    style={selectArrowStyle}
-                                >
-                                    <option value="">Select</option>
-                                    <option value="income">Income</option>
-                                    <option value="expense">Expense</option>
-                                </select>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Category</label>
-                                <select 
-                                    name="category" 
-                                    value={form.category} 
-                                    onChange={handleChange} 
-                                    onBlur={handleBlur} 
-                                    disabled={!form.type}
-                                    className={getInputClasses('category')}
-                                    style={selectArrowStyle}
-                                >
-                                    <option value="">Select</option>
-                                    {form.type && categories[form.type].map(cat => (
-                                        <option key={cat} value={cat}>{cat}</option>
-                                    ))}
-                                </select>
-                            </div>
+                <div className="space-y-4 flex-1 flex flex-col">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Type</label>
+                            <select 
+                                name="type" 
+                                value={form.type} 
+                                onChange={handleChange} 
+                                onBlur={handleBlur} 
+                                className={getInputClasses('type')}
+                                style={selectArrowStyle}
+                            >
+                                <option value="">Select</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
                         </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Amount</label>
-                                <input name="amount" type="number" value={form.amount} onChange={handleChange} onBlur={handleBlur} placeholder="0.00" className={getInputClasses('amount')} />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Date</label>
-                                <input 
-                                    name="date" 
-                                    type="date" 
-                                    value={form.date} 
-                                    onChange={handleChange} 
-                                    onBlur={handleBlur} 
-                                    className={getInputClasses('date')} 
-                                    style={dateInputStyle}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase ml-1">Description</label>
-                            <input name="description" type="text" value={form.description} onChange={handleChange} onBlur={handleBlur} placeholder="Add a description." className={getInputClasses('description')} />
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Category</label>
+                            <select 
+                                name="category" 
+                                value={form.category} 
+                                onChange={handleChange} 
+                                onBlur={handleBlur} 
+                                disabled={!form.type}
+                                className={getInputClasses('category')}
+                                style={selectArrowStyle}
+                            >
+                                <option value="">Select</option>
+                                {form.type && categories[form.type].map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 
-                    <div className="pt-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Amount</label>
+                            <input name="amount" type="number" value={form.amount} onChange={handleChange} onBlur={handleBlur} placeholder="0.00" className={getInputClasses('amount')} />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Date</label>
+                            {/* Mobile Fix: Tinanggal ang cursor-pointer at inayos ang focus behavior */}
+                            <input 
+                                name="date" 
+                                type="date" 
+                                value={form.date} 
+                                onChange={handleChange} 
+                                onBlur={handleBlur} 
+                                className={`${getInputClasses('date')} block w-full`}
+                                style={dateInputStyle}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Description</label>
+                        <input name="description" type="text" value={form.description} onChange={handleChange} onBlur={handleBlur} placeholder="Add a description." className={getInputClasses('description')} />
+                    </div>
+
+                    <div className="pt-4 mt-auto">
                         <button 
                             onClick={handleSubmit} 
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all active:scale-[0.98] shadow-xl shadow-indigo-600/20"
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold text-xs md:text-sm uppercase tracking-widest transition-all active:scale-[0.98] shadow-xl shadow-indigo-600/20"
                         >
                             Add Transaction
                         </button>
