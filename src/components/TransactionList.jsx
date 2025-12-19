@@ -65,13 +65,11 @@ const TransactionList = ({ filteredTransactions, currentFilter, setCurrentFilter
             <div className={`rounded-2xl p-6 transition-all duration-300 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}> 
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                     
-                    {/* TITLE WITH INDIGO INDICATOR */}
                     <h3 className={`text-xl sm:text-2xl font-bold flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                         <span className="w-1.5 h-6 bg-indigo-600 rounded-full"></span>
                         Recent Transactions
                     </h3>
                     
-                    {/* FILTER BUTTONS */}
                     <div className={`flex p-1 rounded-xl border ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-gray-100 border-gray-200'}`}>
                         {['all', 'income', 'expense'].map((filter) => (
                             <button
@@ -91,7 +89,7 @@ const TransactionList = ({ filteredTransactions, currentFilter, setCurrentFilter
 
                 <div className="space-y-3 overflow-y-auto max-h-[450px] pr-2 custom-scrollbar">
                     {filteredTransactions.length === 0 ? (
-                        <div className={`text-center py-10 italic text-sm ${darkMode ? 'opacity-40' : 'text-gray-400'}`}>No transactions yet.</div>
+                        <div className={`text-center py-10 italic text-sm text-gray-300 ${darkMode ? 'opacity-30' : 'text-gray-300'}`}>No transactions yet.</div>
                     ) : (
                         filteredTransactions.map(transaction => (
                             <div 

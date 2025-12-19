@@ -31,7 +31,7 @@ const Header = ({
               
               <div className="hidden xl:block h-8 w-[1px] bg-white/20 mx-2"></div>
               <div className="hidden xl:flex flex-col justify-center">
-                 <span className="text-[10px] text-amber-300 font-bold uppercase tracking-tighter leading-none">Welcome back</span>
+                 <span className="text-[10px] text-amber-300 font-bold uppercase tracking-tighter leading-none">Welcome</span>
                  <span className="text-white text-sm font-black truncate max-w-[120px]">HI, {userName.toUpperCase()}!</span>
               </div>
             </div>
@@ -182,7 +182,7 @@ const Header = ({
           
           <div className="p-6 bg-black/40 text-center">
             <p className="text-[10px] text-gray-400 uppercase tracking-widest">© 2025 Finance Manager</p>
-            <p className="text-[10px] text-amber-500/60 mt-1">Created by: Mica Joyce Biadoy</p>
+            <p className="text-[10px] text-amber-500/60 mt-1">Mica Joyce Biadoy</p>
           </div>
         </div>
       </div>
