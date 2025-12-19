@@ -231,13 +231,14 @@ function App() {
     return acc;
   }, {});
 
-  // --- WELCOME SCREEN RENDER ---
+  // --- WELCOME SCREEN RENDER (FIXED) ---
   if (!userName) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-amber-900 to-black flex items-center justify-center p-4">
+      <div className="fixed inset-0 w-full h-full bg-gradient-to-br from-black via-amber-900 to-black flex items-center justify-center p-4 overflow-hidden touch-none">
+        {/* NOTIFICATIONS */}
         <div className="fixed top-4 right-4 left-4 sm:left-auto z-[9999] flex flex-col gap-3 sm:w-80 md:w-96">
           {notifications.map(n => (
-            <div key={n.id} className={`${getNotificationStyles(n.type)} text-white px-4 py-3 rounded-xl shadow-2xl border-l-4 flex justify-between items-center animate-slide-in-right`}>
+            <div key={n.id} className={`${getNotificationStyles(n.type)} text-white px-4 py-3 rounded-xl shadow-2xl border-l-4 flex justify-between items-center`}>
               <span className="text-sm md:text-base font-medium">{n.message}</span>
               <button onClick={() => setNotifications(prev => prev.filter(notif => notif.id !== n.id))} className="text-white/70 hover:text-white p-1">
                 <X size={18} />
@@ -246,32 +247,33 @@ function App() {
           ))}
         </div>
 
-        <div className="max-w-md w-full bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl text-center">
+        <div className="w-full max-w-md bg-white/10 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl text-center">
           <div className="mb-6 flex justify-center">
             <div className="bg-amber-500 p-4 rounded-full shadow-lg">
-              <svg className="w-12 h-12 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-10 h-10 sm:w-12 sm:h-12 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
               </svg>
             </div>
           </div>
-          <h1 className="text-3xl font-black text-white mb-2">Finance Manager</h1>
-          <p className="text-amber-200/70 mb-8">Track your wealth, secure your future.</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-white mb-2">Finance Manager</h1>
+          <p className="text-amber-200/70 mb-8 text-sm sm:text-base">Track your wealth, secure your future.</p>
           
           <form onSubmit={handleStart} className="space-y-4">
             <div className="text-left">
-              <label className="text-xs font-bold text-amber-500 uppercase tracking-widest ml-1">Your Name</label>
+              <label className="text-[10px] sm:text-xs font-bold text-amber-500 uppercase tracking-widest ml-1">Your Name</label>
               <input 
                 type="text" 
                 required
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
                 placeholder="Enter your name to start..."
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
+                /* Set text size to 16px (text-base) to prevent iOS auto-zoom */
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-base placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
               />
             </div>
             <button 
               type="submit"
-              className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 group"
+              className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 group text-base"
             >
               Get Started <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </button>
@@ -300,7 +302,7 @@ function App() {
       {/* MODAL LOGOUT CONFIRMATION */}
       {isLogoutModalOpen && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-800 rounded-3xl p-5 sm:p-6 max-w-[90%] sm:max-w-sm w-full shadow-2xl border border-white/20 animate-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl p-5 sm:p-6 max-w-[90%] sm:max-w-sm w-full shadow-2xl border border-white/20">
             <div className="flex flex-col items-center text-center">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-3 sm:mb-4">
                 <AlertTriangle className="text-red-600 dark:text-red-400" size={28} />
@@ -337,7 +339,7 @@ function App() {
         toggleDarkMode={toggleDarkMode}
         scrollToSection={scrollToSection}
         handleLogout={() => setIsLogoutModalOpen(true)}
-        exportToCSV={exportToCSV} // Pass function to Header
+        exportToCSV={exportToCSV} 
       />
 
       <ArchiveModal
