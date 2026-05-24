@@ -1,16 +1,38 @@
-# React + Vite
+# Finance Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple responsive finance tracking app built with **React + Vite + Tailwind CSS**.
 
-Currently, two official plugins are available:
+## Features
+- Track **income** and **expenses**
+- Persistent transactions per user (localStorage)
+- Archive bin (soft delete)
+- CSV export
+- Dark mode
+- **AI Chatbot (Finance Assistant)**
+  - Floating chat UI, responsive drawer
+  - Chat history saved in `localStorage`
+  - Optional real OpenAI responses via API key
+  - Automatic finance-aware fallback if AI call fails
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## AI Chatbot setup
+1. Open the app
+2. Click the floating **AI Chatbot** button
+3. Open **Settings**
+4. Paste your **OpenAI API key**
+   - Stored locally in your browser: `openai_api_key`
+5. Ask questions like:
+   - `What's my balance?`
+   - `Total income and total expenses?`
+   - `Biggest expense category?`
 
-## React Compiler
+## Run locally
+```bash
+npm install
+npm run dev
+```
+Then open the shown URL (usually `http://localhost:5173/`).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Notes / Security
+If you enable real AI mode, the API key is sent from the browser to OpenAI.
+This is convenient for development but **not secure** for production. For production, use a backend proxy.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
