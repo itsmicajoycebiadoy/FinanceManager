@@ -7,6 +7,9 @@ import TransactionList from './components/TransactionList';
 import ExpenseBreakdown from './components/ExpenseBreakdown';
 import ArchiveModal from './components/ArchiveModal';
 
+import AIChatbot from './components/AIChatbot';
+
+
 function App() {
   // --- STATE INITIALIZATION ---
   const [userName, setUserName] = useState(() => {
@@ -374,6 +377,8 @@ function App() {
         emptyAllTransactions={emptyAllTransactions}
         showNotification={showNotification}
       />
+
+      <AIChatbot darkMode={darkMode} totals={totals} categoryTotals={categoryTotals} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-8 md:py-12 text-gray-800 dark:text-gray-100">
         <section id="dashboard" className="mb-12 scroll-mt-20">
